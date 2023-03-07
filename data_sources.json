@@ -1,0 +1,5 @@
+{
+  "caniuse": "https://github.com/Fyrd/caniuse/raw/main/fulldata-json/data-2.0.json",
+  "chromestatus": "https://chromestatus.com/features_v2.json",
+  "mdn_browser_compat": "https://github.com/mdn/browser-compat-data/releases/latest/download/data.json"
+}
