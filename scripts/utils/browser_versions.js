@@ -1,4 +1,4 @@
-const semver = require('semver');
+const semver = require("semver");
 
 const getCombinedVersions = (caniuseBrowser, mdnBrowser) => {
   if (!mdnBrowser)
@@ -21,7 +21,7 @@ const getCombinedVersions = (caniuseBrowser, mdnBrowser) => {
         global_usage: version.global_usage,
       });
     } else {
-      const parts = version.version.split('-');
+      const parts = version.version.split("-");
       if (parts.length != 2) {
         combinedVersions.push({
           label: version.version,
@@ -57,9 +57,11 @@ const getCombinedVersions = (caniuseBrowser, mdnBrowser) => {
 const resolveVersionsRange = (browser_id, range, data) => {
   const mdnBrowser =
     data.mdn_browser_compat.browsers[canIUseToMdnId(browser_id)];
-  const parts = range.split('-');
+  const parts = range.split("-");
   if (parts.length != 2) {
     return [range];
+  } else if (!mdnBrowser) {
+    return parts;
   } else {
     const range = `${parts[0]} - ${parts[1]}`;
     const mdnVersions = Object.keys(mdnBrowser.releases);
@@ -73,12 +75,12 @@ const resolveVersionsRange = (browser_id, range, data) => {
 const mdnToCanIUseId = (id) => {
   return (
     {
-      chrome_android: 'and_chr',
-      firefox_android: 'and_ff',
-      opera_android: 'op_mini',
-      safari_ios: 'ios_saf',
-      samsunginternet_android: 'samsung',
-      webview_android: 'android',
+      chrome_android: "and_chr",
+      firefox_android: "and_ff",
+      opera_android: "op_mini",
+      safari_ios: "ios_saf",
+      samsunginternet_android: "samsung",
+      webview_android: "android",
     }[id] || id
   );
 };
@@ -86,12 +88,12 @@ const mdnToCanIUseId = (id) => {
 const canIUseToMdnId = (id) => {
   return (
     {
-      and_chr: 'chrome_android',
-      and_ff: 'firefox_android',
-      op_mini: 'opera_android',
-      ios_saf: 'safari_ios',
-      samsung: 'samsunginternet_android',
-      android: 'webview_android',
+      and_chr: "chrome_android",
+      and_ff: "firefox_android",
+      op_mini: "opera_android",
+      ios_saf: "safari_ios",
+      samsung: "samsunginternet_android",
+      android: "webview_android",
     }[id] || id
   );
 };
