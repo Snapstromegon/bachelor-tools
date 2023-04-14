@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chart.js": "^3.9.1",
+    "chartjs-node-canvas": "^4.1.6",
     "semver": "^7.3.8",
     "sql-template-strings": "^2.2.2",
     "sqlite": "^4.1.2",
