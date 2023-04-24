@@ -20,7 +20,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\scripts\\graph_creator copy.js"
+      "program": "${workspaceFolder}\\scripts\\graph_creator.js"
     }
   ]
 }

@@ -70,7 +70,6 @@ const generateChartConfig = async (
           x: version.releaseDate,
           y: version.support,
         })),
-      fill: false,
       borderColor: `hsla(${(360 / browserData.length) * i}, 100%, 50%, 0.5)`,
     })),
   };

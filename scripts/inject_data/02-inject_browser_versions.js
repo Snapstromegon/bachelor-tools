@@ -15,7 +15,8 @@ module.exports = async (db, data) => {
   for (const [id, browser] of Object.entries(browsers)) {
     console.log(`Inserting browser versions for ${id} (${browser.browser})`);
     const mdnBrowser = data.mdn_browser_compat.browsers[mdnToCanIUseId(id)];
-    const combinedVersions = getCombinedVersions(browser, mdnBrowser);
+    const combinedVersions = getCombinedVersions(browser, undefined);
+    // const combinedVersions = getCombinedVersions(browser, mdnBrowser);
     // console.log(id, combinedVersions);
     await Promise.all(
       combinedVersions.map(async (version) => {

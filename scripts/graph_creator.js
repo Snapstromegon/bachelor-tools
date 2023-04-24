@@ -1,103 +1,270 @@
-const chartJs = require("chart.js");
-const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
-const { writeFile } = require("fs/promises");
-const { open } = require("sqlite");
-const sqlite3 = require("sqlite3");
-const SQL = require("sql-template-strings");
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
+const { writeFile, mkdir } = require('fs/promises');
+const { open } = require('sqlite');
+const sqlite3 = require('sqlite3');
 
-const main = async () => {
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({
-    type: "svg",
-    width: 800,
-    height: 600,
+const {
+  parse,
+  parseISO,
+  toDate,
+  isValid,
+  format,
+  startOfSecond,
+  startOfMinute,
+  startOfHour,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+  startOfQuarter,
+  startOfYear,
+  addMilliseconds,
+  addSeconds,
+  addMinutes,
+  addHours,
+  addDays,
+  addWeeks,
+  addMonths,
+  addQuarters,
+  addYears,
+  differenceInMilliseconds,
+  differenceInSeconds,
+  differenceInMinutes,
+  differenceInHours,
+  differenceInDays,
+  differenceInWeeks,
+  differenceInMonths,
+  differenceInQuarters,
+  differenceInYears,
+  endOfSecond,
+  endOfMinute,
+  endOfHour,
+  endOfDay,
+  endOfWeek,
+  endOfMonth,
+  endOfQuarter,
+  endOfYear,
+} = require('date-fns');
+
+const chartOverride = (chartJs) =>
+  chartJs._adapters._date.override({
+    _id: 'iso8601',
+    formats: () => ({
+      datetime: 'MMM d, yyyy, h:mm:ss aaaa',
+      millisecond: 'h:mm:ss.SSS aaaa',
+      second: 'h:mm:ss aaaa',
+      minute: 'h:mm aaaa',
+      hour: 'ha',
+      day: 'MMM d',
+      week: 'PP',
+      month: 'MMM yyyy',
+      quarter: 'qqq - yyyy',
+      year: 'yyyy',
+    }),
+    parse: function (value, fmt) {
+      if (value === null || typeof value === 'undefined') {
+        return null;
+      }
+      const type = typeof value;
+      if (type === 'number' || value instanceof Date) {
+        value = toDate(value);
+      } else if (type === 'string') {
+        if (typeof fmt === 'string') {
+          value = parse(value, fmt, new Date(), this.options);
+        } else {
+          value = parseISO(value, this.options);
+        }
+      }
+      return isValid(value) ? value.getTime() : null;
+    },
+
+    format: function (time, fmt) {
+      return format(time, fmt, this.options);
+    },
+
+    add: function (time, amount, unit) {
+      switch (unit) {
+        case 'millisecond':
+          return addMilliseconds(time, amount);
+        case 'second':
+          return addSeconds(time, amount);
+        case 'minute':
+          return addMinutes(time, amount);
+        case 'hour':
+          return addHours(time, amount);
+        case 'day':
+          return addDays(time, amount);
+        case 'week':
+          return addWeeks(time, amount);
+        case 'month':
+          return addMonths(time, amount);
+        case 'quarter':
+          return addQuarters(time, amount);
+        case 'year':
+          return addYears(time, amount);
+        default:
+          return time;
+      }
+    },
+
+    diff: function (max, min, unit) {
+      switch (unit) {
+        case 'millisecond':
+          return differenceInMilliseconds(max, min);
+        case 'second':
+          return differenceInSeconds(max, min);
+        case 'minute':
+          return differenceInMinutes(max, min);
+        case 'hour':
+          return differenceInHours(max, min);
+        case 'day':
+          return differenceInDays(max, min);
+        case 'week':
+          return differenceInWeeks(max, min);
+        case 'month':
+          return differenceInMonths(max, min);
+        case 'quarter':
+          return differenceInQuarters(max, min);
+        case 'year':
+          return differenceInYears(max, min);
+        default:
+          return 0;
+      }
+    },
+
+    startOf: function (time, unit, weekday) {
+      switch (unit) {
+        case 'second':
+          return startOfSecond(time);
+        case 'minute':
+          return startOfMinute(time);
+        case 'hour':
+          return startOfHour(time);
+        case 'day':
+          return startOfDay(time);
+        case 'week':
+          return startOfWeek(time);
+        case 'isoWeek':
+          return startOfWeek(time, { weekStartsOn: +weekday });
+        case 'month':
+          return startOfMonth(time);
+        case 'quarter':
+          return startOfQuarter(time);
+        case 'year':
+          return startOfYear(time);
+        default:
+          return time;
+      }
+    },
+
+    endOf: function (time, unit) {
+      switch (unit) {
+        case 'second':
+          return endOfSecond(time);
+        case 'minute':
+          return endOfMinute(time);
+        case 'hour':
+          return endOfHour(time);
+        case 'day':
+          return endOfDay(time);
+        case 'week':
+          return endOfWeek(time);
+        case 'month':
+          return endOfMonth(time);
+        case 'quarter':
+          return endOfQuarter(time);
+        case 'year':
+          return endOfYear(time);
+        default:
+          return time;
+      }
+    },
   });
 
-  const db = await open({ filename: "./data copy.db", driver: sqlite3.Database });
+const main = async () => {
+  const db = await open({
+    filename: './data.db',
+    driver: sqlite3.Database,
+  });
 
-  const supports = await db.all(SQL`SELECT DISTINCT support FROM feature_support`);
+  await mkdir('./graphs', { recursive: true });
 
-  console.log(supports);
-
-  const categories = (
-    await db.all(SQL`SELECT name FROM feature_category ORDER BY name ASC`)
-  ).map((cat) => cat.name);
-  console.log(categories);
-
-  const browserData = [];
-
-  const browsers = await db.all(
-    SQL`SELECT name, id, current_version FROM browser WHERE name IN ('Chrome', 'Firefox', 'Safari')`
+  await writeFile(
+    './graphs/latest_versions_categories.svg',
+    new ChartJSNodeCanvas({
+      type: 'svg',
+      width: 600,
+      height: 650,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require('./graph_creator/latest_version_category_support.js').generateChartConfig(
+        db
+      )
+    )
   );
-  for (const browser of browsers) {
-    browser.support = {};
-    for (const feature_category of categories) {
-      const featureCount = await db.get(SQL`
-        SELECT COUNT(*) AS count FROM feature_category_mapping
-        WHERE category = ${feature_category}
-      `);
-      const allFeatures = await db.all(SQL`
-      SELECT feature_support.feature_name
-      FROM feature_support
-      INNER JOIN browser_version
-          ON browser_version.browser_id = feature_support.browser_version_browser_id
-          AND browser_version.label = feature_support.browser_version_label
-      INNER JOIN feature_support as first_fs
-          ON first_fs.feature_name = feature_support.feature_name
-          AND first_fs.support LIKE '%y%'
-      INNER JOIN browser_version as first_bv
-          ON first_bv.browser_id = first_fs.browser_version_browser_id
-          AND first_bv.label = first_fs.browser_version_label
-      WHERE browser_version.release_date < first_bv.release_date
-      AND browser_version.browser_id = ${browser.id}
-      AND browser_version.label = ${browser.current_version}
-      GROUP BY feature_support.feature_name
-      `);
-      const supportedCount = await db.get(SQL`
-        SELECT COUNT(*) AS count FROM feature_support
-        INNER JOIN feature_category_mapping ON feature_support.feature_name = feature_category_mapping.feature_name
-        WHERE browser_version_browser_id = ${browser.id} AND
-          browser_version_label = ${browser.current_version} AND
-          feature_category_mapping.category = ${feature_category} AND
-          (
-            feature_support.support like '%y%' OR
-            feature_support.support like '%a%' OR
-            feature_support.support like '%p%' OR
-            feature_support.support like '%x%'
-          )
-      `);
-      browser.support[feature_category] =
-        supportedCount.count / featureCount.count;
-    }
-    browser.support.CSS += browser.support.CSS2;
-    browser.support.CSS += browser.support.CSS3;
-    browser.support.CSS /= 3;
-    browserData.push(browser);
-  }
+  await writeFile(
+    './graphs/latest_versions_categories_absolute.svg',
+    new ChartJSNodeCanvas({
+      type: 'svg',
+      width: 600,
+      height: 650,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require('./graph_creator/latest_version_category_support.js').generateChartConfig(
+        db,
+        { absolute: true }
+      )
+    )
+  );
+  await writeFile(
+    "./graphs/version_support_history.svg",
+    new ChartJSNodeCanvas({
+      type: "svg",
+      width: 800,
+      height: 400,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require("./graph_creator/feature_support_over_time.js").generateChartConfig(
+        db,
+        {
+          includeBrowsers: [
+            "Chrome",
+            "Firefox",
+            "Safari",
+            "Chrome for Android",
+            "Firefox for Android",
+            "Safari on iOS",
+            "IE",
+          ],
+        }
+      )
+    )
+  );
+  await writeFile(
+    "./graphs/release_version_support_history.svg",
+    new ChartJSNodeCanvas({
+      type: "svg",
+      width: 800,
+      height: 400,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require("./graph_creator/feature_support_over_release_time.js").generateChartConfig(
+        db,
+        {
+          includeBrowsers: [
+            "Chrome",
+            "Firefox",
+            "Safari",
+            "Chrome for Android",
+            "Firefox for Android",
+            "Safari on iOS",
+            "IE",
+          ],
+        }
+      )
+    )
+  );
 
-  const data = {
-    labels: categories,
-    datasets: browserData.map((browser, i) => ({
-      label: `${browser.name} ${browser.current_version}`,
-      data: categories.map((cat) => browser.support[cat]),
-      fill: false,
-      borderColor: `hsla(${(360 / browserData.length) * i}, 100%, 50%, 0.5)`,
-    })),
-  };
-
-  const config = {
-    type: "radar",
-    data: data,
-    options: {
-      elements: {
-        line: {
-          borderWidth: 3,
-        },
-      },
-    },
-  };
-
-  const image = chartJSNodeCanvas.renderToBufferSync(config);
-  writeFile("./test.svg", image);
+  console.log('Done');
 };
 
 main();
