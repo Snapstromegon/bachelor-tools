@@ -7,11 +7,20 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Programm starten",
+      "name": "Inject Data",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\scripts\\inject_data.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Generate Charts",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}\\scripts\\graph_creator copy.js"
     }
   ]
 }
