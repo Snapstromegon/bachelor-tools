@@ -25,7 +25,7 @@ const generateChartConfig = async (
       SQL`SELECT DISTINCT label, release_date FROM browser_version WHERE browser_version.browser_id = ${browser.id} AND release_date > 0 ORDER BY release_date ASC`
     );
     browsersData[browser.name] = [];
-    allBrowserVersions.push(...versions.map((v) => ({ ...v, browser })));
+    allBrowserVersions.push(...versions.filter(v => v.release_date).map((v) => ({ ...v, browser })));
   }
 
   console.log(
@@ -38,6 +38,7 @@ const generateChartConfig = async (
 
   console.log(`Getting feature support data...`);
   for (const version of allBrowserVersionsSorted) {
+    console.log(`Progress: ${new Date(version.release_date * 1000)}`);
     const featureCountAtTime = (
       await db.get(SQL`
     SELECT COUNT(*) AS count FROM feature
@@ -55,18 +56,22 @@ const generateChartConfig = async (
       `)
       )?.label;
 
+      const nextBrowserVersion = (
+        await db.get(SQL`
+        SELECT label FROM browser_version
+        WHERE browser_version.browser_id = ${browser.id} AND
+        browser_version.release_date >= ${version.release_date}
+        ORDER BY release_date ASC
+      `)
+      )?.label;
+
       const supportedCountAtTime = (
         await db.get(SQL`
         SELECT COUNT(*) AS count FROM feature_support
         INNER JOIN feature ON feature_support.feature_name = feature.name
         WHERE browser_version_browser_id = ${browser.id} AND
         browser_version_label = ${maxBrowserVersionAtTime} AND
-        (
-          feature_support.support like '%y%' OR
-          feature_support.support like '%a%' OR
-          feature_support.support like '%p%' OR
-          feature_support.support like '%x%'
-        )
+        feature_support.is_supported = TRUE
       `)
       ).count;
 
@@ -74,9 +79,13 @@ const generateChartConfig = async (
         console.log(`${browser.name} ${maxBrowserVersionAtTime} not supported`);
       }
 
-      if (maxBrowserVersionAtTime && supportedCountAtTime > 0) {
+      if (
+        maxBrowserVersionAtTime &&
+        nextBrowserVersion &&
+        supportedCountAtTime > 0
+      ) {
         browsersData[browser.name].push({
-          x: version.release_date,
+          x: version.release_date * 1000,
           y: supportedCountAtTime / featureCountAtTime,
         });
       }
@@ -102,6 +111,10 @@ const generateChartConfig = async (
       borderWidth: 2,
     })),
   };
+  console.log(
+    "########",
+    allBrowserVersionsSorted.find((v) => v.release_date).release_date
+  );
   return {
     type: "line",
     data,
@@ -114,7 +127,8 @@ const generateChartConfig = async (
       scales: {
         x: {
           type: "time",
-          min: allBrowserVersionsSorted[0].release_date,
+          min: allBrowserVersionsSorted.find((v) => v.release_date)
+            .release_date * 1000,
           time: {
             unit: "year",
           },

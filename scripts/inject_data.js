@@ -13,6 +13,7 @@ const main = async () => {
   await require('./inject_data/03-inject_feature_categories.js')(db, data);
   await require('./inject_data/04-inject_features.js')(db, data);
   await require('./inject_data/05-inject_feature_supports.js')(db, data);
-  await require("./inject_data/06-inject_feature_first_support.js")(db, data);
+  await require("./inject_data/07-inject_feature_first_support.js")(db, data);
+  await require("./inject_data/06-inject_feature_support_is_supported.js")(db, data);
 };
 main();

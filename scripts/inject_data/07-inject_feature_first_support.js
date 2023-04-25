@@ -19,12 +19,7 @@ module.exports = async (db, data) => {
           browser_version.browser_id = feature_support.browser_version_browser_id AND
           browser_version.label = feature_support.browser_version_label
         WHERE feature_support.feature_name = ${feature.name} AND
-          (
-            feature_support.support like '%y%' OR
-            feature_support.support like '%a%' OR
-            feature_support.support like '%p%' OR
-            feature_support.support like '%x%'
-          )`
+        feature_support.is_supported = TRUE`
     );
 
     await db.run(SQL`UPDATE feature SET first_supported = ${firstSupported.first_supported} WHERE name = ${feature.name}`)

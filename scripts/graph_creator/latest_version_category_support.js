@@ -34,12 +34,7 @@ const generateChartConfig = async (
         WHERE browser_version_browser_id = ${browser.id} AND
           browser_version_label = ${browser.current_version} AND
           feature_category_mapping.category = ${feature_category} AND
-          (
-            feature_support.support like '%y%' OR
-            feature_support.support like '%a%' OR
-            feature_support.support like '%p%' OR
-            feature_support.support like '%x%'
-          )
+        feature_support.is_supported = TRUE
       `);
       if (absolute) {
         browser.support[feature_category] = supportedCount.count;

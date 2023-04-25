@@ -261,6 +261,28 @@ const main = async () => {
       )
     )
   );
+  await writeFile(
+    "./graphs/feature_lag.svg",
+    new ChartJSNodeCanvas({
+      type: "svg",
+      width: 800,
+      height: 400,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require("./graph_creator/competitor_feature_lag.js").generateChartConfig(
+        db,
+        {
+          includeBrowsers: [
+            "Chrome",
+            "Firefox",
+            "Safari",
+            "Safari on iOS",
+            "IE",
+          ],
+        }
+      )
+    )
+  );
 
   console.log('Done');
 };

@@ -32,12 +32,7 @@ const generateChartConfig = async (
         SELECT COUNT(*) AS count FROM feature_support
         WHERE browser_version_browser_id = ${browser.id} AND
         browser_version_label = ${version.label} AND
-        (
-          feature_support.support like '%y%' OR
-          feature_support.support like '%a%' OR
-          feature_support.support like '%p%' OR
-          feature_support.support like '%x%'
-        )
+        feature_support.is_supported = TRUE
       `);
       browser.support = supportedCount.count / featureCount.count;
       browser.supportHistory.push({
