@@ -101,5 +101,6 @@ const canIUseToMdnId = (id) => {
 module.exports = {
   getCombinedVersions,
   mdnToCanIUseId,
+  canIUseToMdnId,
   resolveVersionsRange,
 };

@@ -17,14 +17,14 @@ module.exports = async (db, data) => {
       for (const [version, support] of Object.entries(supportData)) {
         const supportParts = support.split(' ');
         const supportChars = supportParts.filter((p) => !p.startsWith('#'));
-        // const versions = resolveVersionsRange(browser, version, data);
-        // for (const version of versions) {
+        const versions = resolveVersionsRange(browser, version, data);
+        for (const version of versions) {
           await db.run(SQL`INSERT OR REPLACE INTO feature_support (
             feature_name, browser_version_label, browser_version_browser_id, support
           ) VALUES (
             ${name}, ${version}, ${browser}, ${supportChars.sort().join('')}
           )`);
-        // }
+        }
         const supportNotesTexts = supportParts.filter((p) => p.startsWith('#'));
         const supportNotesNumberTexts = supportNotesTexts.map((p) =>
           p.slice(1)

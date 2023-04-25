@@ -254,8 +254,6 @@ const main = async () => {
             "Chrome",
             "Firefox",
             "Safari",
-            "Chrome for Android",
-            "Firefox for Android",
             "Safari on iOS",
             "IE",
           ],

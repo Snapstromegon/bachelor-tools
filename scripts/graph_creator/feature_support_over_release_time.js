@@ -98,6 +98,8 @@ const generateChartConfig = async (
       stepped: "before",
       data: browser.supportHistory,
       borderColor: `hsla(${(360 / browserData.length) * i}, 100%, 50%, 0.5)`,
+      pointRadius: 1,
+      borderWidth: 2,
     })),
   };
   return {

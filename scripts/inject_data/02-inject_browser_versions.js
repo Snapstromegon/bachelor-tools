@@ -1,6 +1,7 @@
 const SQL = require('sql-template-strings');
 const {
   mdnToCanIUseId,
+  canIUseToMdnId,
   getCombinedVersions,
 } = require('../utils/browser_versions');
 
@@ -14,10 +15,12 @@ module.exports = async (db, data) => {
   const browsers = data.caniuse.agents;
   for (const [id, browser] of Object.entries(browsers)) {
     console.log(`Inserting browser versions for ${id} (${browser.browser})`);
-    const mdnBrowser = data.mdn_browser_compat.browsers[mdnToCanIUseId(id)];
-    const combinedVersions = getCombinedVersions(browser, undefined);
-    // const combinedVersions = getCombinedVersions(browser, mdnBrowser);
-    // console.log(id, combinedVersions);
+    const mdnBrowser = data.mdn_browser_compat.browsers[canIUseToMdnId(id)];
+    // const combinedVersions = getCombinedVersions(browser, undefined);
+    const combinedVersions = getCombinedVersions(browser, mdnBrowser);
+    // if (mdnBrowser) { 
+    //   console.log(id, combinedVersions);
+    // }
     await Promise.all(
       combinedVersions.map(async (version) => {
         await db.run(SQL`INSERT OR REPLACE INTO browser_version (
