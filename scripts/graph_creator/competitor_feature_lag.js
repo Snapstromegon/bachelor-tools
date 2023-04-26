@@ -19,10 +19,21 @@ const generateChartConfig = async (
   const browsersData = {};
   const allBrowserVersions = [];
 
+  const firstReleases = {};
+  for (const browser of browsers) {
+    firstReleases[browser.id] = (
+      await db.get(
+        SQL`SELECT release_date FROM browser_version WHERE browser_id = ${browser.id} AND release_date > 0 ORDER BY release_date ASC LIMIT 1`
+      )
+    )?.release_date;
+  }
+
+  const competitionStart = Object.values(firstReleases).sort((a, b) => a - b)[1];
+
   for (const browser of browsers) {
     console.log(`Getting all versions for ${browser.name}...`);
     const versions = await db.all(
-      SQL`SELECT DISTINCT label, release_date FROM browser_version WHERE browser_version.browser_id = ${browser.id} AND release_date > 0 ORDER BY release_date ASC`
+      SQL`SELECT DISTINCT label, release_date FROM browser_version WHERE browser_version.browser_id = ${browser.id} AND release_date > ${competitionStart} ORDER BY release_date ASC`
     );
     browsersData[browser.name] = [];
     allBrowserVersions.push(
@@ -159,8 +170,9 @@ const generateChartConfig = async (
       scales: {
         x: {
           type: "time",
-          min: allBrowserVersionsSorted.find((v) => v.release_date)
-            .release_date * 1000,
+          min:
+            allBrowserVersionsSorted.find((v) => v.release_date).release_date *
+            1000,
           time: {
             unit: "year",
           },
