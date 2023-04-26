@@ -1,7 +1,7 @@
-const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
-const { writeFile, mkdir } = require('fs/promises');
-const { open } = require('sqlite');
-const sqlite3 = require('sqlite3');
+const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
+const { writeFile, mkdir } = require("fs/promises");
+const { open } = require("sqlite");
+const sqlite3 = require("sqlite3");
 
 const {
   parse,
@@ -43,32 +43,32 @@ const {
   endOfMonth,
   endOfQuarter,
   endOfYear,
-} = require('date-fns');
+} = require("date-fns");
 
 const chartOverride = (chartJs) =>
   chartJs._adapters._date.override({
-    _id: 'iso8601',
+    _id: "iso8601",
     formats: () => ({
-      datetime: 'MMM d, yyyy, h:mm:ss aaaa',
-      millisecond: 'h:mm:ss.SSS aaaa',
-      second: 'h:mm:ss aaaa',
-      minute: 'h:mm aaaa',
-      hour: 'ha',
-      day: 'MMM d',
-      week: 'PP',
-      month: 'MMM yyyy',
-      quarter: 'qqq - yyyy',
-      year: 'yyyy',
+      datetime: "MMM d, yyyy, h:mm:ss aaaa",
+      millisecond: "h:mm:ss.SSS aaaa",
+      second: "h:mm:ss aaaa",
+      minute: "h:mm aaaa",
+      hour: "ha",
+      day: "MMM d",
+      week: "PP",
+      month: "MMM yyyy",
+      quarter: "qqq - yyyy",
+      year: "yyyy",
     }),
     parse: function (value, fmt) {
-      if (value === null || typeof value === 'undefined') {
+      if (value === null || typeof value === "undefined") {
         return null;
       }
       const type = typeof value;
-      if (type === 'number' || value instanceof Date) {
+      if (type === "number" || value instanceof Date) {
         value = toDate(value);
-      } else if (type === 'string') {
-        if (typeof fmt === 'string') {
+      } else if (type === "string") {
+        if (typeof fmt === "string") {
           value = parse(value, fmt, new Date(), this.options);
         } else {
           value = parseISO(value, this.options);
@@ -83,23 +83,23 @@ const chartOverride = (chartJs) =>
 
     add: function (time, amount, unit) {
       switch (unit) {
-        case 'millisecond':
+        case "millisecond":
           return addMilliseconds(time, amount);
-        case 'second':
+        case "second":
           return addSeconds(time, amount);
-        case 'minute':
+        case "minute":
           return addMinutes(time, amount);
-        case 'hour':
+        case "hour":
           return addHours(time, amount);
-        case 'day':
+        case "day":
           return addDays(time, amount);
-        case 'week':
+        case "week":
           return addWeeks(time, amount);
-        case 'month':
+        case "month":
           return addMonths(time, amount);
-        case 'quarter':
+        case "quarter":
           return addQuarters(time, amount);
-        case 'year':
+        case "year":
           return addYears(time, amount);
         default:
           return time;
@@ -108,23 +108,23 @@ const chartOverride = (chartJs) =>
 
     diff: function (max, min, unit) {
       switch (unit) {
-        case 'millisecond':
+        case "millisecond":
           return differenceInMilliseconds(max, min);
-        case 'second':
+        case "second":
           return differenceInSeconds(max, min);
-        case 'minute':
+        case "minute":
           return differenceInMinutes(max, min);
-        case 'hour':
+        case "hour":
           return differenceInHours(max, min);
-        case 'day':
+        case "day":
           return differenceInDays(max, min);
-        case 'week':
+        case "week":
           return differenceInWeeks(max, min);
-        case 'month':
+        case "month":
           return differenceInMonths(max, min);
-        case 'quarter':
+        case "quarter":
           return differenceInQuarters(max, min);
-        case 'year':
+        case "year":
           return differenceInYears(max, min);
         default:
           return 0;
@@ -133,23 +133,23 @@ const chartOverride = (chartJs) =>
 
     startOf: function (time, unit, weekday) {
       switch (unit) {
-        case 'second':
+        case "second":
           return startOfSecond(time);
-        case 'minute':
+        case "minute":
           return startOfMinute(time);
-        case 'hour':
+        case "hour":
           return startOfHour(time);
-        case 'day':
+        case "day":
           return startOfDay(time);
-        case 'week':
+        case "week":
           return startOfWeek(time);
-        case 'isoWeek':
+        case "isoWeek":
           return startOfWeek(time, { weekStartsOn: +weekday });
-        case 'month':
+        case "month":
           return startOfMonth(time);
-        case 'quarter':
+        case "quarter":
           return startOfQuarter(time);
-        case 'year':
+        case "year":
           return startOfYear(time);
         default:
           return time;
@@ -158,21 +158,21 @@ const chartOverride = (chartJs) =>
 
     endOf: function (time, unit) {
       switch (unit) {
-        case 'second':
+        case "second":
           return endOfSecond(time);
-        case 'minute':
+        case "minute":
           return endOfMinute(time);
-        case 'hour':
+        case "hour":
           return endOfHour(time);
-        case 'day':
+        case "day":
           return endOfDay(time);
-        case 'week':
+        case "week":
           return endOfWeek(time);
-        case 'month':
+        case "month":
           return endOfMonth(time);
-        case 'quarter':
+        case "quarter":
           return endOfQuarter(time);
-        case 'year':
+        case "year":
           return endOfYear(time);
         default:
           return time;
@@ -182,34 +182,34 @@ const chartOverride = (chartJs) =>
 
 const main = async () => {
   const db = await open({
-    filename: './data.db',
+    filename: "./data.db",
     driver: sqlite3.Database,
   });
 
-  await mkdir('./graphs', { recursive: true });
+  await mkdir("./graphs", { recursive: true });
 
   await writeFile(
-    './graphs/latest_versions_categories.svg',
+    "./graphs/latest_versions_categories.svg",
     new ChartJSNodeCanvas({
-      type: 'svg',
+      type: "svg",
       width: 600,
       height: 650,
       chartCallback: chartOverride,
     }).renderToBufferSync(
-      await require('./graph_creator/latest_version_category_support.js').generateChartConfig(
+      await require("./graph_creator/latest_version_category_support.js").generateChartConfig(
         db
       )
     )
   );
   await writeFile(
-    './graphs/latest_versions_categories_absolute.svg',
+    "./graphs/latest_versions_categories_absolute.svg",
     new ChartJSNodeCanvas({
-      type: 'svg',
+      type: "svg",
       width: 600,
       height: 650,
       chartCallback: chartOverride,
     }).renderToBufferSync(
-      await require('./graph_creator/latest_version_category_support.js').generateChartConfig(
+      await require("./graph_creator/latest_version_category_support.js").generateChartConfig(
         db,
         { absolute: true }
       )
@@ -276,7 +276,7 @@ const main = async () => {
             "Chrome",
             "Firefox",
             "Safari",
-            "Safari on iOS",
+            // "Safari on iOS", // Remove Safari on iOS here, because it would unfairly benefit Safari Desktop
             "IE",
           ],
         }
@@ -284,7 +284,24 @@ const main = async () => {
     )
   );
 
-  console.log('Done');
+  await writeFile(
+    "./graphs/feature_lag_current_version.svg",
+    new ChartJSNodeCanvas({
+      type: "svg",
+      width: 600,
+      height: 650,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require("./graph_creator/competitor_feature_lag_newest_version.js").generateChartConfig(
+        db,
+        {
+          includeBrowsers: ["Chrome", "Firefox", "Safari"],
+        }
+      )
+    )
+  );
+
+  console.log("Done");
 };
 
 main();
