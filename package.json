@@ -15,6 +15,7 @@
     "chartjs-node-canvas": "^4.1.6",
     "date-fns": "^2.29.3",
     "semver": "^7.5.0",
+    "sharp": "^0.32.1",
     "sql-template-strings": "^2.2.2",
     "sqlite": "^4.1.2",
     "sqlite3": "^5.1.6"

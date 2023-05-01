@@ -186,10 +186,10 @@ const main = async () => {
     driver: sqlite3.Database,
   });
 
-  await mkdir("./graphs", { recursive: true });
+  await mkdir("./graphs/svg", { recursive: true });
 
   await writeFile(
-    "./graphs/latest_versions_categories.svg",
+    "./graphs/svg/latest_versions_categories.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 600,
@@ -202,7 +202,7 @@ const main = async () => {
     )
   );
   await writeFile(
-    "./graphs/latest_versions_categories_absolute.svg",
+    "./graphs/svg/latest_versions_categories_absolute.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 600,
@@ -216,7 +216,7 @@ const main = async () => {
     )
   );
   await writeFile(
-    "./graphs/version_support_history.svg",
+    "./graphs/svg/version_support_history.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 800,
@@ -240,7 +240,7 @@ const main = async () => {
     )
   );
   await writeFile(
-    "./graphs/release_version_support_history.svg",
+    "./graphs/svg/release_version_support_history.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 800,
@@ -262,7 +262,7 @@ const main = async () => {
     )
   );
   await writeFile(
-    "./graphs/feature_lag.svg",
+    "./graphs/svg/feature_lag.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 800,
@@ -285,7 +285,7 @@ const main = async () => {
   );
 
   await writeFile(
-    "./graphs/feature_lag_current_version.svg",
+    "./graphs/svg/feature_lag_current_version.svg",
     new ChartJSNodeCanvas({
       type: "svg",
       width: 600,
@@ -301,7 +301,23 @@ const main = async () => {
     )
   );
 
-  console.log("Done");
+  await writeFile(
+    "./graphs/svg/released_versions_per_year.svg",
+    new ChartJSNodeCanvas({
+      type: "svg",
+      width: 800,
+      height: 400,
+      chartCallback: chartOverride,
+    }).renderToBufferSync(
+      await require("./graph_creator/released_versions_per_year.js").generateChartConfig(
+        db,
+        {
+          includeBrowsers: ["Chrome", "Firefox", "Safari"],
+        }
+      )
+    )
+  );
+  console.log("Done")
 };
 
 main();
