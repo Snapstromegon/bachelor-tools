@@ -67,6 +67,17 @@ const generateChartConfig = async (
           borderWidth: 3,
         },
       },
+      scales: {
+        r: absolute
+          ? undefined
+          : {
+              min: 0,
+              max: 1,
+              ticks: {
+                callback: (value) => `${(value * 100).toFixed(0)}%`,
+              },
+            },
+      },
     },
   };
 };

@@ -21,6 +21,15 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\scripts\\graph_creator.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Raw JSON",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}\\scripts\\raw_json_debug.js"
     }
   ]
 }

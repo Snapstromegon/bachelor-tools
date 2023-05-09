@@ -4,7 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "download": "node scripts/download_raw_data.js",
+    "inject": "node scripts/inject_data.js",
+    "build:db": "run-s download inject",
+    "build:db:offline": "run-s inject",
+    "build:graphs:svg": "node scripts/graph_creator.js",
+    "build:graphs:png": "node scripts/graph_to_png.js",
+    "build:graphs": "run-s build:graphs:svg build:graphs:png",
+    "build": "run-s build:db build:graphs",
+    "build:offline": "run-s build:db:offline build:graphs"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +22,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-node-canvas": "^4.1.6",
     "date-fns": "^2.29.3",
+    "npm-run-all": "^4.1.5",
     "semver": "^7.5.0",
     "sharp": "^0.32.1",
     "sql-template-strings": "^2.2.2",
