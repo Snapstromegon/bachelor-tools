@@ -30,6 +30,19 @@ const main = async () => {
   await renderGraph({
     width: 800,
     height: 400,
+    output: "./graphs/svg/time_between_releases.svg",
+    renderer: "./graph_creator/time_between_releases.js",
+    options: {
+      includeBrowsers: [
+        "Chrome",
+        "Firefox",
+        "Safari",
+      ],
+    },
+  });
+  await renderGraph({
+    width: 800,
+    height: 400,
     output: './graphs/svg/global_usage.svg',
     renderer: './graph_creator/global_usage.js',
     options: {
@@ -81,8 +94,8 @@ const main = async () => {
   await renderGraph({
     width: 800,
     height: 400,
-    output: './graphs/svg/version_support_history_absolute.svg',
-    renderer: './graph_creator/feature_support_over_time.js',
+    output: './graphs/svg/release_version_support_history.svg',
+    renderer: './graph_creator/feature_support_over_release_time.js',
     options: {
       includeBrowsers: [
         'Chrome',
@@ -91,6 +104,7 @@ const main = async () => {
         'Safari on iOS',
         'IE',
       ],
+      absolute: true,
     },
   });
   await renderGraph({
