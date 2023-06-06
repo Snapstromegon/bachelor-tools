@@ -13,6 +13,7 @@ const generateChartConfig = async (
   for (const browserName of includeBrowsers) {
     browserSelector.append(SQL` OR name = ${browserName}`);
   }
+  browserSelector.append(SQL` ORDER BY name`);
   const browsers = await db.all(browserSelector);
 
   const browserDatas = {};
@@ -53,7 +54,7 @@ const generateChartConfig = async (
       scales: {
         y: {
           ticks: {
-            callback: (value) => `${(value * 100).toFixed(0)}%`,
+            callback: (value) => `${value.toFixed(0)}%`,
           },
         },
       },
