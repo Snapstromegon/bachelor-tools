@@ -13,6 +13,7 @@ const generateChartConfig = async (
   for (const browserName of includeBrowsers) {
     browserSelector.append(SQL` OR name = ${browserName}`);
   }
+  browserSelector.append(SQL` ORDER BY name`);
   const browsers = await db.all(browserSelector);
   console.log(`Found ${browsers.length} browsers`);
   const browserData = [];
