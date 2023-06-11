@@ -30,6 +30,36 @@ const main = async () => {
   await renderGraph({
     width: 800,
     height: 400,
+    output: "./graphs/svg/feature_first_supported.svg",
+    renderer: "./graph_creator/feature_first_supported.js",
+    options: {
+      includeBrowsers: [
+        "Chrome",
+        "Firefox",
+        "Safari",
+        'Safari on iOS',
+        'IE',
+      ],
+    },
+  });
+  await renderGraph({
+    width: 600,
+    height: 650,
+    output: "./graphs/svg/feature_category_first_supported.svg",
+    renderer: "./graph_creator/feature_category_first_supported.js",
+    options: {
+      includeBrowsers: [
+        "Chrome",
+        "Firefox",
+        "Safari",
+        'IE',
+      ],
+    },
+  });
+
+  await renderGraph({
+    width: 800,
+    height: 400,
     output: "./graphs/svg/time_between_releases.svg",
     renderer: "./graph_creator/time_between_releases.js",
     options: {
