@@ -30,6 +30,24 @@ const main = async () => {
   await renderGraph({
     width: 800,
     height: 400,
+    output: "./graphs/svg/potentially_unstable_features.svg",
+    renderer: "./graph_creator/potentially_unstable_features.js",
+    options: {
+      includeBrowsers: ["Chrome", "Firefox", "Safari"],
+    },
+  });
+  await renderGraph({
+    width: 800,
+    height: 400,
+    output: "./graphs/svg/partial_supports.svg",
+    renderer: "./graph_creator/partial_supports.js",
+    options: {
+      includeBrowsers: ["Chrome", "Firefox", "Safari"],
+    },
+  });
+  await renderGraph({
+    width: 800,
+    height: 400,
     output: "./graphs/svg/feature_first_supported.svg",
     renderer: "./graph_creator/feature_first_supported.js",
     options: {
